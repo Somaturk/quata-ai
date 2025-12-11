@@ -5,7 +5,6 @@ export const dynamic = "force-dynamic";
 import React, { Suspense, useState, useRef, type ChangeEvent, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-...
 // geri kalan her şey AYNI kalabilir
 
 import { Button } from "@/components/ui/button";
