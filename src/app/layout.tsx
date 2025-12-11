@@ -8,7 +8,13 @@ import { ThemeProvider } from '@/components/theme-provider';
 export const metadata: Metadata = {
   title: 'One Quata',
   description: 'Teklif ve Sipariş Yönetim Sistemi',
+  icons: {
+    icon: '/onequata-icon.svg',          // Tarayıcı favicon
+    shortcut: '/onequata-icon.svg',      // Chrome hızlı ikon
+    apple: '/onequata-icon.svg',         // iOS ikon
+  }
 };
+
 
 export default function RootLayout({
   children,
@@ -26,21 +32,21 @@ export default function RootLayout({
         />
       </head>
       <body className={cn('font-body antialiased', 'h-full bg-background print:bg-white')}>
-         <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <div id="main-layout-container" className="flex flex-col min-h-screen">
-              <Header />
-              <main className="flex-grow container mx-auto px-4 py-8">
-                {children}
-              </main>
-            </div>
-            <div className="print:hidden">
-              <Toaster />
-            </div>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <div id="main-layout-container" className="flex flex-col min-h-screen">
+            <Header />
+            <main className="flex-grow container mx-auto px-4 py-8">
+              {children}
+            </main>
+          </div>
+          <div className="print:hidden">
+            <Toaster />
+          </div>
         </ThemeProvider>
       </body>
     </html>
