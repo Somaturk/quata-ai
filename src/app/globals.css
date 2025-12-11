@@ -1,0 +1,247 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 208 100% 96.7%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 180 25% 94%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 180 25% 94%;
+    --muted-foreground: 224 7.1% 42.1%;
+    --accent: 195 53.3% 79.4%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 180 20% 88%;
+    --input: 180 20% 88%;
+    --ring: 0 0% 9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+  }
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 0 0% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 195 53.3% 50%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 0 0% 98%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+  
+  @media print {
+    @page {
+      size: A4;
+      margin: 1cm 0mm 1.5cm 0mm;
+      @bottom-center {
+        content: "Sayfa " counter(page);
+        font-size: 9pt;
+        color: #888;
+      }
+    }
+
+    body {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* Reset layout for printing */
+    body, #main-layout-container {
+      display: block !important;
+      background-color: white !important;
+    }
+
+    .printable-area, .printable-area-alternative {
+      box-shadow: none !important;
+      border: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 100% !important;
+      max-width: none !important;
+    }
+    
+    body.print-main-only .printable-area-alternative {
+        display: none !important;
+    }
+
+    .print-hide-this {
+      display: none !important;
+    }
+
+    .table-container-print {
+      overflow: visible !important;
+    }
+    
+    /* Ensure table headers are repeated on each page */
+    thead {
+      display: table-header-group !important;
+    }
+
+    tfoot {
+      display: table-footer-group !important;
+    }
+    
+    /* Avoid breaking content inside these elements */
+    tr, .offer-header-print, .offer-details-print {
+      page-break-inside: avoid !important;
+    }
+
+    .print-hide {
+      display: none !important;
+    }
+    
+    /* Styles for printing the details modal */
+    body.details-modal-is-open > #main-layout-container,
+    body.details-modal-is-open > .print\:hidden,
+    body.details-modal-is-open > div[data-radix-toast-provider-id],
+    div[data-radix-dialog-overlay] {
+        display: none !important;
+    }
+
+    body.details-modal-is-open div[data-radix-dialog-content] {
+        position: static !important;
+        width: 100% !important;
+        max-width: none !important;
+        height: 100% !important;
+        max-height: none !important;
+        inset: auto !important;
+        transform: none !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        animation: none !important;
+        background-color: white !important;
+    }
+    
+    body.details-modal-is-open div[data-radix-scroll-area-root],
+    body.details-modal-is-open div[data-radix-scroll-area-viewport] {
+      height: 100% !important;
+      max-height: none !important;
+      overflow: visible !important;
+      background-color: white !important;
+    }
+    
+    .print-area {
+        display: flex !important;
+        flex-direction: column;
+        gap: 0.4cm;
+        padding: 0 1.5cm;
+        background-color: white !important;
+    }
+
+    .product-card-print {
+        display: grid !important;
+        grid-template-columns: 4.5cm 1fr !important;
+        grid-template-rows: 1fr;
+        gap: 0.5cm !important;
+        page-break-inside: avoid !important;
+        overflow: hidden !important;
+        padding: 0 !important;
+        height: 4.2cm !important;
+    }
+
+    .product-card-print .group {
+        position: relative !important;
+        height: 100% !important;
+        width: 100% !important;
+    }
+    
+    .product-card-print > .flex.flex-col {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        height: 100%;
+    }
+    
+    .product-card-print .text-xl {
+      font-size: 11pt !important;
+      line-height: 1.2 !important;
+      margin-bottom: 0.15cm !important;
+    }
+    
+    .product-card-print textarea {
+        flex-grow: 1;
+        border: none !important;
+        padding: 0 !important;
+        resize: none !important;
+        background-color: transparent !important;
+        color: #333 !important;
+        font-size: 8pt !important;
+        line-height: 1.3 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .product-card-print .text-right {
+        margin-top: auto;
+        padding-top: 0.15cm;
+    }
+
+    .product-card-print .text-lg {
+        font-size: 10pt !important;
+    }
+  }
+
+  .product-card-interactive {
+      display: grid !important;
+      grid-template-columns: 250px 1fr !important;
+      grid-template-rows: 1fr;
+      gap: 1.5rem !important;
+      page-break-inside: avoid !important;
+      overflow: hidden !important;
+      padding: 1rem !important;
+  }
+}
