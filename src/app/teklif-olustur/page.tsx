@@ -54,9 +54,11 @@ const ProductAutocomplete = ({ listType, products, handleSelectProduct, handleOp
     }
   };
 
-  const filteredProducts = searchQuery.length < 2 ? [] : products.filter(p =>
-    p.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredProducts = searchQuery.trim() === '%'
+    ? products
+    : searchQuery.length < 2
+      ? []
+      : products.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Escape') {
@@ -394,53 +396,56 @@ function OfferPageInner() {
   useEffect(() => {
     if (!isClient) return;
 
-    const offerId = searchParams.get('offerId');
-    if (offerId && isOffersLoaded) {
-      const offerToEdit = getOfferById(offerId);
-      if (offerToEdit) {
-        setEditingOfferId(offerToEdit.id);
-        setOfferNumber(offerToEdit.offerNumber);
-        setOfferDate(offerToEdit.offerDate ? new Date(offerToEdit.offerDate) : new Date());
-        setValidityDate(offerToEdit.validityDate ? new Date(offerToEdit.validityDate) : undefined);
-        setIsValidityDateManuallySet(!!offerToEdit.validityDate);
-        setOfferTitleDescription(offerToEdit.offerTitleDescription);
-        setCustomerName(offerToEdit.customerName);
-        setContactPerson(offerToEdit.contactPerson);
-        setCustomerAddress(offerToEdit.customerAddress);
-        setOfferItems(offerToEdit.items);
-        setDetailedItems(offerToEdit.detailedItems || []);
-        setDocumentNotes(offerToEdit.documentNotes);
-        const initialLogo = offerToEdit.logoDataUrl || defaultLogo.src;
-        setLogoDataUrl(initialLogo);
-        setLogoPreview(initialLogo);
-        setAlternatives(offerToEdit.alternatives || []);
-        setShowDiscountColumn(offerToEdit.items.some(item => item.discount && item.discount > 0));
-        setIsOrder(offerToEdit.isOrder || false);
-        setOrderDate(offerToEdit.orderDate);
+    const initializePage = async () => {
+      const offerId = searchParams.get('offerId');
+      if (offerId && isOffersLoaded) {
+        const offerToEdit = await getOfferById(offerId);
+        if (offerToEdit) {
+          setEditingOfferId(offerToEdit.id);
+          setOfferNumber(offerToEdit.offerNumber);
+          setOfferDate(offerToEdit.offerDate ? new Date(offerToEdit.offerDate) : new Date());
+          setValidityDate(offerToEdit.validityDate ? new Date(offerToEdit.validityDate) : undefined);
+          setIsValidityDateManuallySet(!!offerToEdit.validityDate);
+          setOfferTitleDescription(offerToEdit.offerTitleDescription);
+          setCustomerName(offerToEdit.customerName);
+          setContactPerson(offerToEdit.contactPerson);
+          setCustomerAddress(offerToEdit.customerAddress);
+          setOfferItems(offerToEdit.items);
+          setDetailedItems(offerToEdit.detailedItems || []);
+          setDocumentNotes(offerToEdit.documentNotes);
+          const initialLogo = offerToEdit.logoDataUrl || defaultLogo.src;
+          setLogoDataUrl(initialLogo);
+          setLogoPreview(initialLogo);
+          setAlternatives(offerToEdit.alternatives || []);
+          setShowDiscountColumn(offerToEdit.items?.some(item => item.discount && item.discount > 0) || false);
+          setIsOrder(offerToEdit.isOrder || false);
+          setOrderDate(offerToEdit.orderDate);
 
-      } else {
-        router.replace('/eski-teklifler');
-        toast({ variant: 'destructive', title: 'Hata', description: 'Düzenlenecek teklif bulunamadı.' });
-      }
-    } else if (!offerId && isOffersLoaded) {
-      // Set initial state for a new offer
-      setEditingOfferId(null);
-      (async () => {
+        } else {
+          router.replace('/eski-teklifler');
+          toast({ variant: 'destructive', title: 'Hata', description: 'Düzenlenecek teklif bulunamadı.' });
+        }
+      } else if (!offerId && isOffersLoaded) {
+        // Set initial state for a new offer
+        setEditingOfferId(null);
         const newNumber = await getNewOfferNumber();
         setOfferNumber(newNumber);
-      })();
-      const initialDate = new Date();
-      setOfferDate(initialDate);
-      setValidityDate(addDays(initialDate, 7));
-      setIsValidityDateManuallySet(false);
-      setDetailedItems([]);
-      setAlternatives([]);
-      if (isLogoLoaded) {
-        const initialLogo = savedLogo || defaultLogo.src;
-        setLogoDataUrl(initialLogo);
-        setLogoPreview(initialLogo);
+
+        const initialDate = new Date();
+        setOfferDate(initialDate);
+        setValidityDate(addDays(initialDate, 7));
+        setIsValidityDateManuallySet(false);
+        setDetailedItems([]);
+        setAlternatives([]);
+        if (isLogoLoaded) {
+          const initialLogo = savedLogo || defaultLogo.src;
+          setLogoDataUrl(initialLogo);
+          setLogoPreview(initialLogo);
+        }
       }
-    }
+    };
+
+    initializePage();
   }, [searchParams, isOffersLoaded, getOfferById, router, toast, getNewOfferNumber, isClient, savedLogo, isLogoLoaded]);
 
   useEffect(() => {
@@ -905,7 +910,7 @@ function OfferPageInner() {
     router.push('/eski-teklifler');
   };
 
-  const handleConvertToOrder = () => {
+  const handleConvertToOrder = async () => {
     const offerData = prepareOfferData();
     if (!offerData) return;
 
@@ -918,13 +923,13 @@ function OfferPageInner() {
     if (editingOfferId) {
       updateOffer({ ...finalOfferData, id: editingOfferId });
     } else {
-      const newOffer = addOffer(finalOfferData);
+      const newOffer = await addOffer(finalOfferData);
       if (newOffer) {
         convertToOrder(newOffer.id);
       }
     }
     router.push('/siparisler');
-  }
+  };
 
   const handleSaveDetails = () => {
     const newDetailedItems: OfferDetailItem[] = itemsForDetails.map(item => ({
@@ -958,8 +963,9 @@ function OfferPageInner() {
     setProductModalOpen(true);
   };
 
-  const handleSaveNewProduct = (newProduct: Omit<Product, 'id'>) => {
-    const productWithId = addNewProductsToList([newProduct])[0];
+  const handleSaveNewProduct = async (newProduct: Omit<Product, 'id'>) => {
+    const products = await addNewProductsToList([newProduct]);
+    const productWithId = products[0];
     if (productWithId) {
       handleSelectProduct(productWithId, listTypeForNewProduct);
     }
@@ -972,12 +978,13 @@ function OfferPageInner() {
     setCompanyModalOpen(true);
   };
 
-  const handleSaveNewCompany = (newCompany: Omit<Company, 'id'>) => {
-    addCompany(newCompany, (companyWithId) => {
+  const handleSaveNewCompany = async (newCompany: Omit<Company, 'id'>) => {
+    const companyWithId = await addCompany(newCompany);
+    if (companyWithId) {
       setCustomerName(companyWithId.name);
       setContactPerson(companyWithId.contactPerson || '');
       setCustomerAddress(companyWithId.address || '');
-    });
+    }
     setCompanyModalOpen(false);
     setInitialCompanyName(undefined);
   };

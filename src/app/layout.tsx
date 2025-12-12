@@ -34,8 +34,8 @@ export default function RootLayout({
       <body className={cn('font-body antialiased', 'h-full bg-background print:bg-white')}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
+          enableSystem={false}
           disableTransitionOnChange
         >
           <div id="main-layout-container" className="flex flex-col min-h-screen">

@@ -91,8 +91,24 @@ const analyzeProductImageFlow = ai.defineFlow(
     outputSchema: AnalyzeProductImageOutputSchema,
   },
   async (input) => {
-    const { output } = await productAnalysisPrompt(input);
-    return output || [];
+    let attempts = 0;
+    // Simple retry mechanism for 503 Service Unavailable errors
+    while (attempts < 3) {
+      try {
+        const { output } = await productAnalysisPrompt(input);
+        return output || [];
+      } catch (error: any) {
+        attempts++;
+        // Check if error is related to service overload (503)
+        if (error.message && (error.message.includes('503') || error.message.includes('overloaded')) && attempts < 3) {
+          console.warn(`Gemini API overloaded (503), retrying in ${attempts * 2} seconds... (Attempt ${attempts}/3)`);
+          await new Promise(resolve => setTimeout(resolve, 2000 * attempts));
+          continue;
+        }
+        throw error;
+      }
+    }
+    throw new Error('Yapay zeka servisi (Google Gemini) şu anda aşırı yoğun olduğundan yanıt veremiyor. Lütfen 1-2 dakika bekleyip tekrar deneyiniz.');
   }
 );
 
